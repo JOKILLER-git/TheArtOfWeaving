@@ -1,0 +1,86 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/presentation_3d/knit_level_3d.gd" id="1_level"]
+[ext_resource type="Resource" path="res://resources/levels/level_01_first_stitch.tres" id="2_level"]
+[ext_resource type="Theme" path="res://resources/ui/weave_theme.tres" id="3_theme"]
+[ext_resource type="Script" path="res://scripts/presentation_3d/fabric_view_3d.gd" id="4_fabric"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/hint_view_2d.gd" id="5_hint"]
+[ext_resource type="Script" path="res://scripts/presentation_3d/working_yarn_3d.gd" id="6_yarn"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/chart_card_2d.gd" id="7_card"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/pointer_input_2d.gd" id="8_pointer"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/sound_bank.gd" id="9_sound"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/scissors_2d.gd" id="10_scissors"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/star_rating_view_2d.gd" id="11_stars"]
+
+[sub_resource type="Environment" id="Env_1"]
+background_mode = 1
+background_color = Color(0.965, 0.949, 0.914, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 0.97, 0.92, 1)
+ambient_light_energy = 0.42
+tonemap_mode = 0
+
+[node name="KnitLevel3D" type="Control"]
+editor_description = "3D 针织关卡（T009）：规则与手势同 2D（复用 core），线圈是 3D 管子，线在前 / 在后是真实深度。上层 2D 叠加层复用 2D 的提示、图纸卡、剪刀、星级、指针输入。右键拖动转动视角（松开回弹）。快捷键 R 剪断 / H 提示 / N 跳过星级 / F3 调试层。F6 单独运行时玩 default_level；完整流程见 scenes/app/game_app_3d.tscn。"
+custom_minimum_size = Vector2(1280, 800)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_level")
+default_level = ExtResource("2_level")
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Environment" type="WorldEnvironment" parent="World"]
+environment = SubResource("Env_1")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="World"]
+transform = Transform3D(0.848048, 0, 0.529919, 0.393807, 0.669131, -0.630223, -0.354585, 0.743145, 0.567455, 0, 0, 0)
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 0.62
+
+[node name="Camera" type="Camera3D" parent="World"]
+unique_name_in_owner = true
+current = true
+fov = 30.0
+
+[node name="FabricView" type="Node3D" parent="World"]
+unique_name_in_owner = true
+script = ExtResource("4_fabric")
+
+[node name="WorkingYarn" type="Node3D" parent="World"]
+unique_name_in_owner = true
+script = ExtResource("6_yarn")
+
+[node name="Effects" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="HintView" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("5_hint")
+
+[node name="ChartCard" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("7_card")
+
+[node name="PointerInput" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("8_pointer")
+
+[node name="Scissors" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("10_scissors")
+
+[node name="Stars" type="Node2D" parent="."]
+unique_name_in_owner = true
+visible = false
+script = ExtResource("11_stars")
+
+[node name="SoundBank" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("9_sound")

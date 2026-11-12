@@ -7,10 +7,10 @@ const CELL := 20.0
 const MARGIN := 20.0
 
 var _session: KnitSession
-var _yarn: WorkingYarn2D
+var _yarn: YarnHandle
 
 
-func setup(session: KnitSession, yarn: WorkingYarn2D) -> void:
+func setup(session: KnitSession, yarn: YarnHandle) -> void:
 	_session = session
 	_yarn = yarn
 

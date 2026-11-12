@@ -1,16 +1,17 @@
 class_name PointerInput2D
 extends Node2D
 ## 鼠标输入适配：抓住线头拖动，把像素换算成织物坐标后按小步长补采样喂给手势识别器。
+## 只依赖 FabricScreenMapper 与 YarnHandle，2D 与 3D 关卡共用（3D 中放在 2D 叠加层里）。
 
 const SAMPLE_STEP := 0.05   # 补采样步长（列宽）：鼠标事件可能跳过很小的眼
 
-var _mapper: ScreenMapper2D
-var _yarn: WorkingYarn2D
+var _mapper: FabricScreenMapper
+var _yarn: YarnHandle
 var _recognizers: Array[GestureRecognizer] = []
 var _last := Vector2.ZERO   # 上一个喂给识别器的织物坐标
 
 
-func setup(mapper: ScreenMapper2D, yarn: WorkingYarn2D, recognizers: Array[GestureRecognizer]) -> void:
+func setup(mapper: FabricScreenMapper, yarn: YarnHandle, recognizers: Array[GestureRecognizer]) -> void:
 	_mapper = mapper
 	_yarn = yarn
 	_recognizers = recognizers

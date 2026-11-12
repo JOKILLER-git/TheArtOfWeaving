@@ -1,0 +1,69 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/app/game_app.gd" id="1_app"]
+[ext_resource type="Theme" path="res://scenes/app/app_theme.tres" id="2_theme"]
+[ext_resource type="Resource" path="res://resources/levels/level_catalog.tres" id="3_catalog"]
+[ext_resource type="PackedScene" path="res://scenes/app/title_screen.tscn" id="4_title"]
+[ext_resource type="PackedScene" path="res://scenes/app/end_screen.tscn" id="5_end"]
+[ext_resource type="Script" path="res://scripts/app/progress_beads_2d.gd" id="6_beads"]
+[ext_resource type="Script" path="res://scripts/app/level_clothesline_2d.gd" id="7_line"]
+[ext_resource type="PackedScene" path="res://scenes/knit/knit_level_3d.tscn" id="8_level3d"]
+[ext_resource type="PackedScene" path="res://scenes/knit/knit_level_2d.tscn" id="9_level2d"]
+
+[node name="GameApp" type="Control"]
+editor_description = "3D 版游戏入口（T009）：与 game_app.tscn 相同，只是 level_view_scene 换成 knit_level_3d.tscn。开始界面 → 按 level_catalog 依次进行各关（KnitLevel3D）→ 结束界面。顶部进度珠；每关完成后星级动画播完自动进入下一关。Esc 回到开始界面。进度珠中间垂下的线头往下拉 = 选关晾衣绳（T008）。开始界面剪断拉线 = 淡出退出。"
+custom_minimum_size = Vector2(1280, 800)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_app")
+catalog = ExtResource("3_catalog")
+level_view_scene = ExtResource("8_level3d")
+alternate_view_scene = ExtResource("9_level2d")
+view_label = "3D"
+alternate_view_label = "2D"
+
+[node name="LevelHost" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Beads" type="Node2D" parent="."]
+unique_name_in_owner = true
+visible = false
+script = ExtResource("6_beads")
+
+[node name="Clothesline" type="Node2D" parent="."]
+unique_name_in_owner = true
+visible = false
+script = ExtResource("7_line")
+
+[node name="TitleScreen" parent="." instance=ExtResource("4_title")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="EndScreen" parent="." instance=ExtResource("5_end")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="Fade" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.11, 0.09, 0.07, 0)

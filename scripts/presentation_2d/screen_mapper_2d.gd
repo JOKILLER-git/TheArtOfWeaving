@@ -1,6 +1,6 @@
 class_name ScreenMapper2D
-extends RefCounted
-## 像素 ↔ 织物坐标。按关卡的列数、行数自动缩放：线圈宽有上限，高尽量占满画布，织物居中。
+extends FabricScreenMapper
+## FabricScreenMapper 的 2D 实现：像素 ↔ 织物坐标。按关卡的列数、行数自动缩放：线圈宽有上限，高尽量占满画布，织物居中。
 ## 四周预留边距：左右各留出绕线提示圆伸出织物边缘的部分，上方留给进度珠和图纸卡，下方留给剪刀，
 ## 保证锚点、静止线头和提示圆在每一关都完整显示在画布内。
 ## 线圈宽 = 列宽 × FabricLayout.loop_width：线圈的大小（和线粗、行高）按线圈宽算，列宽更大，线圈之间留出空隙。
@@ -15,12 +15,8 @@ const PAD_TOP := 84.0       # 上方留给进度珠与图纸卡（像素）
 const PAD_BOTTOM := 56.0    # 下方留给剪刀（像素）
 const SIDE_UNITS := WrapGesture.HINT_RADIUS + 0.12  # 织物左右边缘外还要容纳的宽度（列宽）：提示圆 + 笔触
 const TAIL_UNITS := 0.5     # 起始行线尾伸到沉降弧下方的长度（列宽），见 FabricView2D._row_strand
-const REF_COL_PX := 84.0    # 参考线圈宽：线粗、抓取半径、提示等按 loop_px() / REF_COL_PX 等比放大
 const SETTLE_SQUEEZE := 0.02
 
-var col_px: float = REF_COL_PX
-var loop_width: float = 1.0 # 线圈占列宽的比例（fit 时从 FabricLayout 读取）
-var row_px: float = 70.0
 var origin := Vector2.ZERO  # 织物坐标 (0, 0) 的像素位置
 var settle: float = 0.0      # 一行完成时布面轻微收紧的动画量
 
@@ -53,20 +49,6 @@ func fit_in(layout: FabricLayout, area: Rect2, side_units: float = 0.0) -> void:
 		bottom - TAIL_UNITS * col_px - FabricLayout.LOOP_BOT * row_px)
 
 
-## 线圈宽（像素）。
-func loop_px() -> float:
-	return col_px * loop_width
-
-
-## 相对参考线圈宽的缩放倍数。
-func scale_k() -> float:
-	return loop_px() / REF_COL_PX
-
-
-func yarn_width() -> float:
-	return 0.115 * loop_px()
-
-
 func to_screen(fabric_point: Vector2) -> Vector2:
 	var y := origin.y - fabric_point.y * row_px
 	return Vector2(origin.x + fabric_point.x * col_px, origin.y + (y - origin.y) * _squeeze())
@@ -75,13 +57,6 @@ func to_screen(fabric_point: Vector2) -> Vector2:
 func to_fabric(screen_point: Vector2) -> Vector2:
 	var y := origin.y + (screen_point.y - origin.y) / _squeeze()
 	return Vector2((screen_point.x - origin.x) / col_px, (origin.y - y) / row_px)
-
-
-func to_screen_all(points: Array[Vector2]) -> Array[Vector2]:
-	var out: Array[Vector2] = []
-	for p in points:
-		out.append(to_screen(p))
-	return out
 
 
 func _squeeze() -> float:

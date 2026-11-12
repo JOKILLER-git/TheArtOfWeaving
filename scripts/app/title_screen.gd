@@ -9,6 +9,8 @@ extends Control
 signal start_requested
 ## 线被剪断：请求退出游戏。
 signal quit_requested
+## 请求切换 2D / 3D 关卡视图（演示用的普通按钮）。
+signal view_toggle_requested
 
 const LOGO_OFFSET := Vector2(0, -10)    # 线圈相对画面中心
 const QUIT_DELAY := 0.45               # 剪断动画先播一会儿再请求退出
@@ -19,6 +21,7 @@ const QUIT_DELAY := 0.45               # 剪断动画先播一会儿再请求退
 @onready var _effects: Node2D = %Effects
 
 var _sound: SoundBank
+var _view_button: Button
 
 
 func _ready() -> void:
@@ -26,6 +29,11 @@ func _ready() -> void:
 	add_child(_sound)
 	_pull.pulled.connect(_on_pulled)
 	_scissors.dropped.connect(_on_scissors_dropped)
+	_view_button = Button.new()
+	_view_button.focus_mode = Control.FOCUS_NONE
+	_view_button.custom_minimum_size = Vector2(150, 48)
+	_view_button.pressed.connect(func() -> void: view_toggle_requested.emit())
+	add_child(_view_button)
 	resized.connect(_layout)
 	_layout()
 
@@ -34,6 +42,9 @@ func _layout() -> void:
 	var view := Rect2(Vector2.ZERO, size)
 	_logo.position = view.get_center() + LOGO_OFFSET
 	_pull.fit_to(view)
+	if _view_button != null:
+		_view_button.size = _view_button.custom_minimum_size
+		_view_button.position = Vector2(view.end.x - _view_button.size.x - 32.0, 32.0)
 
 
 func open() -> void:
@@ -86,3 +97,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if key != null and key.pressed and not key.echo and (key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER):
 		get_viewport().set_input_as_handled()
 		start_requested.emit()
+
+
+## 显示当前视图模式；没有可切换的另一版本时隐藏按钮。
+func set_view_label(label: String, can_toggle: bool) -> void:
+	_view_button.text = "View: " + label
+	_view_button.visible = can_toggle
