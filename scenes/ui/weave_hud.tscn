@@ -1,0 +1,111 @@
+[gd_scene load_steps=6 format=3]
+[ext_resource type="Script" path="res://scripts/ui/weave_hud.gd" id="1"]
+[ext_resource type="Theme" path="res://resources/ui/weave_theme.tres" id="2"]
+[ext_resource type="Texture2D" path="res://assets/ui/replay.svg" id="3"]
+
+[sub_resource type="StyleBoxEmpty" id="Empty"]
+[sub_resource type="StyleBoxFlat" id="Hover"]
+bg_color = Color(0.35, 0.40, 0.34, 0.08)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_left = 28
+corner_radius_bottom_right = 28
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("2")
+script = ExtResource("1")
+editor_description = "目标织纹、当前梭提示与确认、撤销、重试、下一关；提经按钮位于 Loom/WeaveSurface。"
+
+[node name="IntroTitle" type="Label" parent="."]
+unique_name_in_owner = true
+offset_left = 320.0
+offset_top = 16.0
+offset_right = 960.0
+offset_bottom = 58.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.36, 0.40, 0.35, 1)
+text = "第一章 · 第一节"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Restart" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+offset_left = 710.0
+offset_top = 624.0
+offset_right = 870.0
+offset_bottom = 680.0
+mouse_default_cursor_shape = 2
+tooltip_text = "再织一次"
+text = "重新开始"
+icon_alignment = 1
+theme_override_styles/normal = SubResource("Empty")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Hover")
+
+[node name="ConfigurationError" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+offset_left = 240.0
+offset_top = 620.0
+offset_right = 1040.0
+offset_bottom = 668.0
+mouse_filter = 2
+text = "关卡配置不完整，请检查 Lesson 与 Loom 的轨道参数。"
+horizontal_alignment = 1
+
+[connection signal="pressed" from="Restart" to="." method="_on_restart_pressed"]
+
+[node name="PlayControls" type="Control" parent="."]
+layout_mode = 0
+mouse_filter = 2
+
+[node name="Target" type="Label" parent="PlayControls"]
+unique_name_in_owner = true
+offset_left = 360.0
+offset_top = 70.0
+offset_right = 940.0
+offset_bottom = 220.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 19
+
+[node name="Status" type="Label" parent="PlayControls"]
+unique_name_in_owner = true
+offset_left = 170.0
+offset_top = 565.0
+offset_right = 1110.0
+offset_bottom = 610.0
+mouse_filter = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 19
+
+[node name="Confirm" type="Button" parent="PlayControls"]
+unique_name_in_owner = true
+offset_left = 480.0
+offset_top = 625.0
+offset_right = 690.0
+offset_bottom = 675.0
+text = "确认提经 · 引纬"
+
+[node name="Undo" type="Button" parent="PlayControls"]
+unique_name_in_owner = true
+offset_left = 310.0
+offset_top = 625.0
+offset_right = 460.0
+offset_bottom = 675.0
+text = "撤销一行"
+
+[node name="Next" type="Button" parent="PlayControls"]
+unique_name_in_owner = true
+visible = false
+offset_left = 480.0
+offset_top = 625.0
+offset_right = 690.0
+offset_bottom = 675.0
+text = "下一关"

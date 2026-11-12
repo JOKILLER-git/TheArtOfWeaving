@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://dvhk3xwrr0alc"]
+
+[ext_resource type="Script" uid="uid://dkscuoll3tmfl" path="res://scripts/first_weave.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/lessons/first_weave.tres" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/objects/loom.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/weave_hud.tscn" id="4"]
+
+[node name="FirstWeave" type="Control" unique_id=923659580]
+editor_description = "第一关入口。关卡文案和手感参数：Lesson 资源；织框与轨道布局：Loom 场景；界面布局：HUD 场景。开发说明：res://docs/production_pipeline.md"
+custom_minimum_size = Vector2(1280, 800)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1")
+lesson = ExtResource("2")
+
+[node name="Loom" parent="." unique_id=1239248019 instance=ExtResource("3")]
+position = Vector2(190, 292)
+
+[node name="HUD" parent="." unique_id=2086684928 instance=ExtResource("4")]
+layout_mode = 1
+grow_horizontal = 2
+grow_vertical = 2
+
+[editable path="HUD"]
+

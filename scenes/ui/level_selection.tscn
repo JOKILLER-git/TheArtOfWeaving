@@ -1,0 +1,67 @@
+[gd_scene load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/ui/level_selection.gd" id="1"]
+[ext_resource type="Theme" path="res://resources/ui/weave_theme.tres" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/chapter_button.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/stage_button.tscn" id="4"]
+[node name="Selection" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("2")
+script = ExtResource("1")
+chapter_button_scene = ExtResource("3")
+stage_button_scene = ExtResource("4")
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 100.0
+offset_top = 80.0
+offset_right = -100.0
+offset_bottom = -80.0
+[node name="Column" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 38
+[node name="Brand" type="Label" parent="Margin/Column"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "织 间"
+[node name="Body" type="HBoxContainer" parent="Margin/Column"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 52
+[node name="ChapterScroll" type="ScrollContainer" parent="Margin/Column/Body"]
+custom_minimum_size = Vector2(270, 0)
+layout_mode = 2
+horizontal_scroll_mode = 0
+[node name="Chapters" type="VBoxContainer" parent="Margin/Column/Body/ChapterScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+[node name="Content" type="VBoxContainer" parent="Margin/Column/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 24
+[node name="ChapterTitle" type="Label" parent="Margin/Column/Body/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "选择章节"
+[node name="EmptyMessage" type="Label" parent="Margin/Column/Body/Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+[node name="StageScroll" type="ScrollContainer" parent="Margin/Column/Body/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+[node name="Stages" type="GridContainer" parent="Margin/Column/Body/Content/StageScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18

@@ -1,0 +1,7 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+.local/
+
+# Godot AI 插件的自动更新备份
+addons/.godot_ai_update/
