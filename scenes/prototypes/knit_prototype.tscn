@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/prototypes/knit_prototype.gd" id="1"]
+
+[node name="KnitPrototype" type="Control"]
+editor_description = "针织手势原型：从下往上钩过线圈的眼 = 成针；线在后 = 下针，线在前 = 上针；M 切换绕线/工具两种换线方案。F6 单独运行。"
+custom_minimum_size = Vector2(1280, 800)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1")
