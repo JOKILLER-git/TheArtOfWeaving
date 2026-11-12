@@ -41,7 +41,7 @@ func make_app(quits: Array = [0]) -> GameApp:
 
 
 ## 用规则层把当前这关织完（需要时切换线状态）；织物需要剪断时先用关卡的剪断（同剪刀）。
-func finish_level(view: KnitLevel2D) -> void:
+func finish_level(view: KnitLevelView) -> void:
 	if view.session.needs_cut:
 		view.restart()
 	var session := view.session

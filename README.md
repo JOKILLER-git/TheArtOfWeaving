@@ -15,7 +15,20 @@ AP6412 group assignment · **Route B** (one game, 2D and 3D versions).
 
 1. Install Godot 4.7.
 2. Open Godot → **Import** → select `project.godot` in this folder.
-3. Press **F5**. The game starts at the title screen (`scenes/app/game_app.tscn`).
+3. Press **F5**. The game starts at the title screen of the **3D version** (`scenes/app/game_app_3d.tscn`, the project's main scene).
+
+### 2D and 3D versions
+
+Both versions are the same game (same 11 levels, rules, gestures, stars, scissors, level select, title and end screens) and share `scripts/core/` unchanged. Only the presentation layer differs.
+
+| Version | Scene | How to run |
+|---|---|---|
+| 3D | `scenes/app/game_app_3d.tscn` | **F5** (main scene) |
+| 2D | `scenes/app/game_app.tscn` | Open the scene in the editor and press **F6** (Run Current Scene) |
+
+Single levels can also be run alone with F6: `scenes/knit/knit_level_3d.tscn`, `scenes/knit/knit_level_2d.tscn`.
+In 3D, the yarn really passes in front of / behind the fabric. **Right-drag** tilts the camera a little (up to ±20°); it springs back when released.
+`GameApp` only knows the `KnitLevelView` interface; which version is played is chosen by its exported `level_view_scene` (the two app scenes differ only in that property).
 
 ## How to play
 
@@ -31,6 +44,7 @@ The game uses almost no text: every action is done with an object on screen.
 | Hint | Appears automatically when idle, or press **H** |
 | Choose a level | Pull down the little yarn loop hanging from the progress beads at the top: the beads unfold into a clothesline of level cards (finished swatch + best stars, or a pencil sketch). Click a card to play it; push the loop back up, click empty space or press **Esc** to close |
 | Quit | On the title screen, drag the **scissors** onto the yarn |
+| Switch 2D / 3D | On the title screen, click the **View** button (top right) before starting |
 | Back to title | **Esc** |
 | Fullscreen / window | **F11** (the game starts fullscreen) |
 | Gesture debug overlay | **F3** (hit zones, wrap guard, last ignored/rejected hook) |
@@ -59,15 +73,17 @@ scripts/core/              Game rules and data. RefCounted/Resource only; no Nod
   fabric_layout.gd         geometry in "fabric coordinates" (columns/rows)
   data/                    PatternChart, LevelDefinition, LevelCatalog (Resources)
   gesture/                 GestureRecognizer (abstract), HookGesture, WrapGesture
-scripts/presentation_2d/   2D rendering, mouse input, sound, chart card
+scripts/presentation_shared/  interfaces shared by 2D and 3D: FabricScreenMapper, KnitLevelView, YarnHandle
+scripts/presentation_2d/   2D rendering, mouse input, sound, chart card (overlays are reused by 3D)
+scripts/presentation_3d/   3D rendering: KnitLevel3D, CameraMapper3D, FabricView3D, WorkingYarn3D, TubeMesh3D
 scripts/app/               GameApp flow: title → levels → end screen; LevelSequence
 resources/levels/          the four levels and the catalog (.tres)
-scenes/app/                game_app.tscn (main scene), title/end screens
-scenes/knit/               knit_level_2d.tscn (one level; runnable alone with F6)
-tests/core/, tests/app/    rule and flow tests
+scenes/app/                game_app_3d.tscn (main scene, 3D), game_app.tscn (2D), title/end screens
+scenes/knit/               knit_level_3d.tscn, knit_level_2d.tscn (one level; runnable alone with F6)
+tests/core/, tests/app/, tests/presentation_3d/   rule, flow and 3D tests
 ```
 
-Dependencies only point downward: `app` → `presentation_2d` → `core`. Gestures are recognised in fabric coordinates, so a 3D version only needs to project the mouse ray onto the fabric plane; the rules and recognisers are reused unchanged.
+Dependencies only point downward: `app` depends on the interfaces in `presentation_shared`; `presentation_2d` and `presentation_3d` implement them; everything depends on `core`, and `core` depends on nothing above it. Gestures are recognised in fabric coordinates, so a 3D version only needs to project the mouse ray onto the fabric plane; the rules and recognisers are reused unchanged.
 
 ## Tests
 
@@ -76,9 +92,10 @@ Run from a running game (e.g. Godot's debugger / remote expression) or headless:
 ```
 godot --headless --path . --script res://tests/core/run_core_tests.gd
 godot --headless --path . --script res://tests/app/run_app_tests.gd
+godot --path . --script res://tests/presentation_3d/run_presentation_3d_tests.gd   # needs a window (camera projection)
 ```
 
-Last recorded result: core 174/174, app 131/131 passed.
+Last recorded result: core 174/174, app 131/131, presentation_3d 168/168 passed (the 3D suite also re-runs every GameApp flow check against the 3D scene).
 
 Best stars per level are kept for the current run only, so every launch starts with all levels unlocked and none completed (demo-friendly). `ProgressStore` can persist them to `user://progress.json` by constructing it with its default path in `GameApp`.
 

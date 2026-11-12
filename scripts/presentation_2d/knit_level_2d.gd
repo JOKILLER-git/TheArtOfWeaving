@@ -1,25 +1,14 @@
 class_name KnitLevel2D
-extends Control
-## 一关 2D 针织的组合根：为一个 LevelDefinition 创建规则（KnitSession + LevelScore）、几何、识别器和各视图并连接信号。
+extends KnitLevelView
+## KnitLevelView 的 2D 实现。一关 2D 针织的组合根：为一个 LevelDefinition 创建规则（KnitSession + LevelScore）、几何、识别器和各视图并连接信号。
 ## 只负责「这一关」；关卡顺序由外部（GameApp）决定。本类通过信号报告完成，星级动画播完后请求下一关。
 ## 画面里没有文字：重来用左下角的剪刀（拖到工作线或织物上松开），结算用星。
 ## 未被管理时（F6 单独运行）自动开始 default_level。快捷键：R 剪断重来 / H 提示 / N 跳过星级动画 / F3 手势调试层。
 ## 画面按可视区域（随窗口比例变化）布局：可视区域改变时重新计算织物缩放和位置（T007）。
 
-## 本关织完（星级动画开始）。
-signal level_finished(level: LevelDefinition)
-## 星级动画播完（或按 N 跳过）：请求下一关。
-signal next_requested
-
 const SETTLE_ROW := 1.0
 const SETTLE_LEVEL := 2.2
 const CUT_HIT_PX := 26.0    # 剪刀离工作线多近算剪到（像素）
-
-## 单独运行本场景时使用的关卡。
-@export var default_level: LevelDefinition
-
-var session: KnitSession
-var score: LevelScore
 
 var _registry := StitchRegistry.create_default()
 var _level: LevelDefinition
@@ -70,15 +59,6 @@ func restart() -> void:
 
 func current_level() -> LevelDefinition:
 	return _level
-
-
-func is_completed() -> bool:
-	return session != null and session.completed
-
-
-## 本关当前的星级（按目前的失误次数）。
-func stars_earned() -> int:
-	return score.stars() if score != null else 0
 
 
 ## 剪刀在 point 处剪断：画面播放散开动画，规则层回到起始行（预置织物也一起剪掉）。完成后不再剪。
@@ -152,10 +132,10 @@ func _bind_views() -> void:
 	_yarn_view.setup(session, _layout, _mapper)
 	_fabric_view.setup(session, _layout, _mapper, _hook, _yarn_view)
 	_hint_view.setup(session, _layout, _mapper, _level)
-	_chart_card.setup(session, _yarn_view)
+	_chart_card.setup(session, _yarn_view.handle)
 	var recognizers: Array[GestureRecognizer] = [_wrap, _hook]
-	_pointer.setup(_mapper, _yarn_view, recognizers)
-	_debug.setup(session, _layout, _mapper, _hook, _wrap, _yarn_view)
+	_pointer.setup(_mapper, _yarn_view.handle, recognizers)
+	_debug.setup(session, _layout, _mapper, _hook, _wrap, _yarn_view.handle)
 	_scissors.wiggle = session.needs_cut
 
 

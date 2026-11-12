@@ -10,12 +10,12 @@ var _idle: float = 0.0
 var _idle_limit: float = 8.0
 var _session: KnitSession
 var _layout: FabricLayout
-var _mapper: ScreenMapper2D
+var _mapper: FabricScreenMapper
 var _mistake_flash: float = 0.0
 var _time: float = 0.0
 
 
-func setup(session: KnitSession, layout: FabricLayout, mapper: ScreenMapper2D, level: LevelDefinition) -> void:
+func setup(session: KnitSession, layout: FabricLayout, mapper: FabricScreenMapper, level: LevelDefinition) -> void:
 	_session = session
 	_layout = layout
 	_mapper = mapper

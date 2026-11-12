@@ -12,16 +12,16 @@ const INFO_COLOR := Color(0.15, 0.35, 0.8)
 
 var _session: KnitSession
 var _layout: FabricLayout
-var _mapper: ScreenMapper2D
+var _mapper: FabricScreenMapper
 var _hook: HookGesture
 var _wrap: WrapGesture
-var _yarn: WorkingYarn2D
+var _yarn: YarnHandle
 var _events: Array[String] = []
 var _marks: Array[Dictionary] = []    # {at: 像素, color}
 var _trail := PackedVector2Array()
 
 
-func setup(session: KnitSession, layout: FabricLayout, mapper: ScreenMapper2D, hook: HookGesture, wrap_gesture: WrapGesture, yarn: WorkingYarn2D) -> void:
+func setup(session: KnitSession, layout: FabricLayout, mapper: FabricScreenMapper, hook: HookGesture, wrap_gesture: WrapGesture, yarn: YarnHandle) -> void:
 	_session = session
 	_layout = layout
 	_mapper = mapper

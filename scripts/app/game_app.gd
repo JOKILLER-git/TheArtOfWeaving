@@ -2,7 +2,7 @@ class_name GameApp
 extends Control
 ## 游戏外壳（app 层）：开始界面 → 按 LevelCatalog 顺序进行每一关 → 结束界面，可重玩。
 ## F11 切换全屏 / 窗口（默认全屏启动，见 project.godot）。
-## 只管流程与界面切换。每一关的玩法交给 KnitLevel2D：它报告「本关完成」，星级动画播完后请求下一关，
+## 只管流程与界面切换。每一关的玩法交给 KnitLevelView（2D 或 3D 实现，由 level_view_scene 决定）：它报告「本关完成」，星级动画播完后请求下一关，
 ## 本类据此自动进入下一关。顶部的进度珠显示每关是否完成过。Esc：关卡中或结束界面回到开始界面。
 ## T008：
 ## - 玩家进度（PlayerProgress，core）记录每关最好星数，由 ProgressStore（app）存到 user://；进度珠、选关、织片墙共用这一份。
@@ -11,14 +11,20 @@ extends Control
 
 enum Screen { TITLE, PLAYING, FINISHED }
 
-const LEVEL_SCENE := preload("res://scenes/knit/knit_level_2d.tscn")
 const QUIT_FADE := 0.6
 
 @export var catalog: LevelCatalog
+## 关卡视图场景，根节点必须是 KnitLevelView（依赖倒置：本类不知道是 2D 还是 3D）。
+## game_app.tscn 用 knit_level_2d.tscn，game_app_3d.tscn 用 knit_level_3d.tscn。
+@export var level_view_scene: PackedScene = preload("res://scenes/knit/knit_level_2d.tscn")
+## 演示用：标题界面的按钮可以在两种关卡视图之间切换（留空则不显示按钮）。
+@export var alternate_view_scene: PackedScene
+@export var view_label: String = "2D"
+@export var alternate_view_label: String = "3D"
 
 var screen: Screen = Screen.TITLE
 var sequence: LevelSequence
-var level_view: KnitLevel2D
+var level_view: KnitLevelView
 var progress: PlayerProgress
 ## 进度的存储；在加入场景树之前替换可以改存储位置（测试用 ProgressStore.new("") 只放内存）。
 var progress_store: ProgressStore
@@ -49,7 +55,22 @@ func _ready() -> void:
 	_title_screen.start_requested.connect(start_game)
 	_title_screen.quit_requested.connect(quit_game)
 	_end_screen.play_again_requested.connect(start_game)
+	_title_screen.view_toggle_requested.connect(toggle_view)
+	_title_screen.set_view_label(view_label, alternate_view_scene != null)
 	show_title()
+
+
+## 在 2D / 3D 关卡视图之间切换（只换 level_view_scene；规则、关卡、进度都不变）。
+func toggle_view() -> void:
+	if alternate_view_scene == null:
+		return
+	var scene := level_view_scene
+	level_view_scene = alternate_view_scene
+	alternate_view_scene = scene
+	var label := view_label
+	view_label = alternate_view_label
+	alternate_view_label = label
+	_title_screen.set_view_label(view_label, true)
 
 
 ## 回到开始界面（关卡被释放）。
@@ -73,10 +94,11 @@ func play_level(index: int) -> void:
 	_end_screen.close()
 	screen = Screen.PLAYING
 	if level_view == null:
-		level_view = LEVEL_SCENE.instantiate() as KnitLevel2D
+		level_view = level_view_scene.instantiate() as KnitLevelView
+		assert(level_view != null, "level_view_scene 的根节点必须是 KnitLevelView")
 		level_view.level_finished.connect(_on_level_finished)
 		level_view.next_requested.connect(advance)
-	# 先指定关卡再加入场景树，KnitLevel2D 就不会先开始它的默认关卡。
+	# 先指定关卡再加入场景树，关卡视图就不会先开始它的默认关卡。
 	_play_current()
 	if not level_view.is_inside_tree():
 		_level_host.add_child(level_view)

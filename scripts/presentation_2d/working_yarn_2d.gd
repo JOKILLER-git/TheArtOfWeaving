@@ -7,8 +7,16 @@ const ROPE_N := 18
 const FLIP_TIME := 0.38     # 翻面动画时长（秒）
 const GRAB_RADIUS := 44.0   # 参考尺寸下的抓取半径（像素）
 
-var tip := Vector2.ZERO     # 线头位置（像素）
-var held: bool = false      # 玩家正在拖线头
+## 线头的共享状态（指针输入、图纸卡、调试层只依赖它）。
+var handle := YarnHandle.new()
+## 线头位置（像素），即 handle.tip。
+var tip: Vector2:
+	get: return handle.tip
+	set(v): handle.tip = v
+## 玩家正在拖线头，即 handle.held。
+var held: bool:
+	get: return handle.held
+	set(v): handle.held = v
 var front_v: float = 0.0    # 显示用：0 = 后，1 = 前，翻面时补间
 var flip_k: float = 1.0     # 翻面动画进度（1 = 静止）
 
@@ -32,6 +40,7 @@ func setup(session: KnitSession, layout: FabricLayout, mapper: ScreenMapper2D) -
 	flip_k = 1.0
 	tip = _rest_tip()
 	_rope = PackedVector2Array()
+	_sync_handle()
 
 
 func is_front() -> bool:
@@ -43,7 +52,13 @@ func anchor_px() -> Vector2:
 
 
 func can_grab(p: Vector2) -> bool:
-	return not _session.completed and p.distance_to(tip) <= GRAB_RADIUS * _mapper.scale_k()
+	_sync_handle()
+	return handle.can_grab(p)
+
+
+func _sync_handle() -> void:
+	handle.enabled = not _session.completed
+	handle.grab_radius = GRAB_RADIUS * _mapper.scale_k()
 
 
 ## 线翻到另一面：颜色和粗细补间，绳子中段甩一下，像翻过织物边。
@@ -96,6 +111,7 @@ func _process(delta: float) -> void:
 	if _session == null:
 		return
 	_time += delta
+	_sync_handle()
 	if not held:
 		tip = tip.lerp(_rest_tip(), 1.0 - exp(-10.0 * delta))
 	_step_rope(delta)
