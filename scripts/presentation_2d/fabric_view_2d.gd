@@ -2,6 +2,9 @@ class_name FabricView2D
 extends Node2D
 ## 织物画面（2D）：下一针的眼、已织线圈（逐行连成一根线）、与工作线的交叉分层、针法不对时滑脱的虚影。
 ## 每个线圈各部分的前后关系从 StitchType.new_loop_in_front() 读取。
+## hook / yarn 可为空：此时只画织物本身（开始、结束界面的静态装饰用）。
+
+const EYE_GLOW_RADIUS := 0.26   # 眼的光圈半径（线圈宽）
 
 var _session: KnitSession
 var _layout: FabricLayout
@@ -52,6 +55,18 @@ func flash_next_eye() -> void:
 	create_tween().tween_method(func(v: float) -> void: _eye_flash = v, 1.0, 0.0, 0.6)
 
 
+## 剪断时用：第 min_row 行及以上每个线圈的像素折线（按当前画面）。
+func snapshot_loops(min_row: int) -> Array[PackedVector2Array]:
+	var out: Array[PackedVector2Array] = []
+	if _session == null:
+		return out
+	for r in range(min_row, _layout.rows()):
+		for col in _layout.columns():
+			if _session.fabric.has_stitch(r, col):
+				out.append(Strand2D.catmull(_mapper.to_screen_all(_layout.loop_keys(col, r)), 6))
+	return out
+
+
 func _set_ghost_form(v: float) -> void:
 	_ghost_form = v
 
@@ -69,8 +84,9 @@ func _draw() -> void:
 	for r in _layout.rows():
 		if r == 0 or r <= _session.current_row:
 			strands.append(_row_strand(r))
-	var rope := _yarn.build_strand()
-	strands.append(rope)
+	var rope: Strand2D = _yarn.build_strand() if _yarn != null else null
+	if rope != null:
+		strands.append(rope)
 
 	var crossings: Array[StrandPainter2D.Crossing] = []
 	for a in strands.size():
@@ -87,12 +103,13 @@ func _draw() -> void:
 		if st.kind == Strand2D.Kind.FABRIC and st.is_drawable():
 			fabric.append(st)
 	var rope_layer: Array[Strand2D] = []
-	if rope.is_drawable():
+	if rope != null and rope.is_drawable():
 		rope_layer.append(rope)
-	if not _yarn.is_front():
+	var yarn_front := _yarn != null and _yarn.is_front()
+	if not yarn_front:
 		StrandPainter2D.draw_layer(self, rope_layer)
 	StrandPainter2D.draw_layer(self, fabric)
-	if _yarn.is_front():
+	if yarn_front:
 		StrandPainter2D.draw_layer(self, rope_layer)
 	for x in crossings:
 		StrandPainter2D.draw_under(self, x)
@@ -112,10 +129,11 @@ func _draw_next_eye() -> void:
 	if col < 0:
 		return
 	var ks := _mapper.scale_k()
-	var r := HookGesture.ENTER_RADIUS * _mapper.col_px
+	# 光圈按线圈大小画（判定见 HookGesture.HIT_RADIUS，按列宽，比光圈大，更宽容）。
+	var r := EYE_GLOW_RADIUS * _mapper.loop_px()
 	var ec := _mapper.to_screen(_layout.eye_center(col, _session.current_row - 1))
 	var near := 0.0
-	if _yarn.held:
+	if _yarn != null and _yarn.held:
 		near = clampf(1.0 - (_yarn.tip.distance_to(ec) - 20.0 * ks) / (140.0 * ks), 0.0, 1.0)
 	var pulse := 0.25 + 0.15 * sin(_time * 3.0)
 	var glow := maxf(maxf(near, pulse), _eye_flash)
@@ -205,7 +223,7 @@ func _over_rule(a: Strand2D, sa: int, b: Strand2D, sb: int) -> int:
 		# 工作线整体在织物前或后；正在钩的那个旧线圈例外：
 		# 线在后 → 新线从后往前穿出，旧线圈头在线后面；线在前 → 旧线圈头压在线前面。
 		var front := _yarn.is_front()
-		if fab.row == _session.current_row - 1 and col >= 0 and _hook.is_threading(col):
+		if fab.row == _session.current_row - 1 and col >= 0 and _hook != null and _hook.is_threading(col):
 			front = not front
 		return 1 if rope_a == front else -1
 	var za := a.z[sa]

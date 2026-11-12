@@ -10,7 +10,7 @@ rows = PackedStringArray("PPPP")
 [resource]
 script = ExtResource("1_def")
 id = &"purl_row"
-title = "上针"
+title = "Purl Row"
 chart = SubResource("Resource_chart")
 idle_hint_seconds = 8.0
 hint_on_wrong_side = true

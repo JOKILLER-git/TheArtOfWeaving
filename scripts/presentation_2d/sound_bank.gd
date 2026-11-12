@@ -7,6 +7,7 @@ const RATE := 22050
 
 var _tones: Dictionary[String, AudioStreamWAV] = {}
 var _swishes: Dictionary[bool, AudioStreamWAV] = {}
+var _snip: AudioStreamWAV
 
 
 ## 本行第 index 针成针：音阶逐针上行；新线圈压在后面的针（如上针）低八度。
@@ -29,6 +30,25 @@ func play_level_done() -> void:
 	for k in 4:
 		tw.tween_callback(play_tone.bind(SCALE[k * 2 % SCALE.size()] * (1.0 if k < 3 else 2.0), 0.6, 0.25))
 		tw.tween_interval(0.11)
+
+
+## 第 index 颗星织出来：逐颗升高。
+func play_star(index: int) -> void:
+	play_tone(SCALE[(index * 2) % SCALE.size()], 0.7, 0.22, 6.0)
+
+
+## 线被拉直（开始 / 重新开始）：一声上扬的嗖 + 两个音。
+func play_pull() -> void:
+	play_swish(true)
+	play_tone(523.25, 0.6, 0.2)
+	play_tone(783.99, 0.7, 0.16)
+
+
+## 剪刀：两下短促的「咔嚓」。
+func play_snip() -> void:
+	if _snip == null:
+		_snip = _make_snip()
+	_play(_snip)
 
 
 ## 翻面：翻到前面往上滑，翻到后面往下滑。
@@ -81,6 +101,25 @@ func _make_swish(up: bool) -> AudioStreamWAV:
 		lp += (rng.randf_range(-1.0, 1.0) - lp) * lerpf(0.06, 0.25, g)
 		phase += TAU * lerpf(620.0, 1240.0, g) / RATE
 		var v := (0.9 * lp + 0.07 * sin(phase)) * env * 0.5
+		data.encode_s16(s * 2, int(clampf(v, -1.0, 1.0) * 32767.0))
+	return _wav(data)
+
+
+## 两下高频噪声脉冲。
+func _make_snip() -> AudioStreamWAV:
+	var n := int(RATE * 0.16)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var prev := 0.0
+	for s in n:
+		var t := float(s) / RATE
+		var env := exp(-t * 90.0) + 0.8 * exp(-maxf(t - 0.07, 0.0) * 90.0) * (1.0 if t >= 0.07 else 0.0)
+		var noise := rng.randf_range(-1.0, 1.0)
+		var hp := noise - prev    # 简单高通，声音更「脆」
+		prev = noise
+		var v := (0.5 * hp + 0.2 * sin(TAU * 3200.0 * t)) * env * 0.5
 		data.encode_s16(s * 2, int(clampf(v, -1.0, 1.0) * 32767.0))
 	return _wav(data)
 

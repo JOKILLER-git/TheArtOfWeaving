@@ -1,7 +1,7 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/presentation_2d/knit_level_2d.gd" id="1_level"]
-[ext_resource type="Resource" path="res://resources/levels/level_catalog.tres" id="2_catalog"]
+[ext_resource type="Resource" path="res://resources/levels/level_01_first_stitch.tres" id="2_level"]
 [ext_resource type="Theme" path="res://resources/ui/weave_theme.tres" id="3_theme"]
 [ext_resource type="Script" path="res://scripts/presentation_2d/fabric_view_2d.gd" id="4_fabric"]
 [ext_resource type="Script" path="res://scripts/presentation_2d/hint_view_2d.gd" id="5_hint"]
@@ -9,9 +9,11 @@
 [ext_resource type="Script" path="res://scripts/presentation_2d/chart_card_2d.gd" id="7_card"]
 [ext_resource type="Script" path="res://scripts/presentation_2d/pointer_input_2d.gd" id="8_pointer"]
 [ext_resource type="Script" path="res://scripts/presentation_2d/sound_bank.gd" id="9_sound"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/scissors_2d.gd" id="10_scissors"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/star_rating_view_2d.gd" id="11_stars"]
 
 [node name="KnitLevel2D" type="Control"]
-editor_description = "2D 针织关卡：从下往上钩过线圈的眼 = 成针；线头绕锚点一圈 = 切换线的前后。R 重来 / H 提示 / N 下一关。F6 单独运行。"
+editor_description = "2D 针织关卡：从下往上钩过线圈的眼 = 成针；线头绕锚点一圈 = 切换线的前后；把左下角的剪刀拖到线或织物上 = 剪断重来。完成后出现星级，自动请求下一关。快捷键 R 剪断 / H 提示 / N 跳过星级。F6 单独运行时玩 default_level；完整流程见 scenes/app/game_app.tscn。"
 custom_minimum_size = Vector2(1280, 800)
 layout_mode = 3
 anchors_preset = 15
@@ -22,11 +24,14 @@ grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("3_theme")
 script = ExtResource("1_level")
-catalog = ExtResource("2_catalog")
+default_level = ExtResource("2_level")
 
 [node name="FabricView" type="Node2D" parent="."]
 unique_name_in_owner = true
 script = ExtResource("4_fabric")
+
+[node name="Effects" type="Node2D" parent="."]
+unique_name_in_owner = true
 
 [node name="HintView" type="Node2D" parent="."]
 unique_name_in_owner = true
@@ -44,41 +49,15 @@ script = ExtResource("7_card")
 unique_name_in_owner = true
 script = ExtResource("8_pointer")
 
+[node name="Scissors" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("10_scissors")
+
+[node name="Stars" type="Node2D" parent="."]
+unique_name_in_owner = true
+visible = false
+script = ExtResource("11_stars")
+
 [node name="SoundBank" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("9_sound")
-
-[node name="Title" type="Label" parent="."]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 32.0
-offset_top = 20.0
-offset_right = 760.0
-offset_bottom = 56.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.357, 0.329, 0.275, 1)
-theme_override_font_sizes/font_size = 26
-
-[node name="Keys" type="Label" parent="."]
-layout_mode = 0
-offset_left = 32.0
-offset_top = 756.0
-offset_right = 600.0
-offset_bottom = 784.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.357, 0.329, 0.275, 0.6)
-theme_override_font_sizes/font_size = 17
-text = "R 重来      H 提示      N 下一关"
-
-[node name="DoneLabel" type="Label" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 0
-offset_top = 24.0
-offset_right = 1280.0
-offset_bottom = 64.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.608, 0.389, 0.311, 1)
-theme_override_font_sizes/font_size = 24
-text = "织好了  ·  按 N 继续"
-horizontal_alignment = 1

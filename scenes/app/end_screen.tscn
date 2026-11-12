@@ -1,0 +1,44 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/app/end_screen.gd" id="1_end"]
+[ext_resource type="Script" path="res://scripts/app/swatch_wall_2d.gd" id="2_wall"]
+[ext_resource type="Script" path="res://scripts/app/yarn_pull_2d.gd" id="3_pull"]
+
+[node name="EndScreen" type="Control"]
+editor_description = "结束界面：每关一块织片拼成的织片墙。把线头拉到小线轴重新开始；Esc 回开始界面。"
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_end")
+
+[node name="Heading" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -330.0
+offset_bottom = -250.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 52
+text = "Well knitted!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Wall" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(640, 375)
+script = ExtResource("2_wall")
+
+[node name="Pull" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_pull")
+origin = Vector2(-30, 660)
+rest_tip = Vector2(190, 690)
+target = Vector2(1130, 660)

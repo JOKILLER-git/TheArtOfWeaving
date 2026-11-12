@@ -25,7 +25,8 @@ func _draw() -> void:
 	var cols := _session.width()
 	var n_rows := _session.last_row() + 1
 	var card_size := Vector2(cols * CELL + 44, n_rows * CELL + 32)
-	var rect := Rect2(Vector2(ScreenMapper2D.CANVAS.x - MARGIN - card_size.x, MARGIN), card_size)
+	var view := get_viewport_rect()
+	var rect := Rect2(Vector2(view.end.x - MARGIN - card_size.x, view.position.y + MARGIN), card_size)
 	var dist := _rect_dist(rect, get_local_mouse_position())
 	if _yarn.held:
 		dist = minf(dist, _rect_dist(rect, _yarn.tip))

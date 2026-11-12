@@ -10,7 +10,7 @@ rows = PackedStringArray("KKKK")
 [resource]
 script = ExtResource("1_def")
 id = &"knit_row"
-title = "一行下针"
+title = "A Row of Knits"
 chart = SubResource("Resource_chart")
 idle_hint_seconds = 8.0
 hint_on_wrong_side = true

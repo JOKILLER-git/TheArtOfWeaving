@@ -10,7 +10,7 @@ rows = PackedStringArray("KPKP", "KPKP")
 [resource]
 script = ExtResource("1_def")
 id = &"rib"
-title = "罗纹"
+title = "Rib"
 chart = SubResource("Resource_chart")
 idle_hint_seconds = 8.0
 hint_on_wrong_side = true

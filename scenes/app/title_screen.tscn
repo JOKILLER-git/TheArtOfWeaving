@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/app/title_screen.gd" id="1_title"]
+[ext_resource type="Script" path="res://scripts/app/yarn_loop_logo_2d.gd" id="2_logo"]
+[ext_resource type="Script" path="res://scripts/app/yarn_pull_2d.gd" id="3_pull"]
+[ext_resource type="Script" path="res://scripts/presentation_2d/scissors_2d.gd" id="4_scissors"]
+
+[node name="TitleScreen" type="Control"]
+editor_description = "开始界面：游戏名（只用英文 The Art of Weaving）、中央一个大线圈、一段可以拉的线（拉到右边的小线轴开始，回车为快捷键）、左下角的剪刀（剪断这段线 = 退出游戏）。"
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_title")
+
+[node name="Logo" type="Node2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(640, 420)
+script = ExtResource("2_logo")
+
+[node name="GameName" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -260.0
+offset_bottom = -176.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 60
+text = "The Art of Weaving"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Pull" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_pull")
+origin = Vector2(-30, 580)
+rest_tip = Vector2(190, 610)
+target = Vector2(1130, 580)
+
+[node name="Effects" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Scissors" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("4_scissors")

@@ -23,10 +23,14 @@ const REST_OFFSET := Vector2(0.48, -0.8)  # 线头静止时相对锚点的位置
 enum LoopPart { HEAD, LEG, SINKER }
 
 var session: KnitSession
+## 线圈主体（腿和头）占列宽的比例。1.0 = 相邻线圈紧挨（默认，旧行为）；
+## 小于 1 时线圈形状不变、只是变窄，相邻线圈之间露出一段沉降弧，眼之间更宽松。
+var loop_width: float = 1.0
 
 
-func _init(p_session: KnitSession) -> void:
+func _init(p_session: KnitSession, p_loop_width: float = 1.0) -> void:
 	session = p_session
+	loop_width = p_loop_width
 
 
 func columns() -> int:
@@ -105,16 +109,22 @@ func loop_keys(col: int, row: int, form: float = 1.0) -> Array[Vector2]:
 	var c := float(row)
 	var base := sinker_y(row)
 	var keys: Array[Vector2] = []
-	for h in LOOP_HALF:
-		keys.append(Vector2(x + h.x, c + h.y))
+	for k in LOOP_HALF.size():
+		keys.append(Vector2(x + _half_x(k), c + LOOP_HALF[k].y))
 	for k in range(LOOP_HALF.size() - 2, -1, -1):
-		keys.append(Vector2(x - LOOP_HALF[k].x, c + LOOP_HALF[k].y))
+		keys.append(Vector2(x - _half_x(k), c + LOOP_HALF[k].y))
 	var f := clampf(form, 0.0, 1.0)
 	var squash := lerpf(0.7, 1.0, f)
 	for k in range(1, keys.size() - 1):
 		var p := keys[k]
 		keys[k] = Vector2(x + (p.x - x) * squash, base + (p.y - base) * f)
 	return keys
+
+
+## 第 k 个左半边关键点的横坐标：首点留在列边界（与相邻线圈相接），其余按 loop_width 收窄。
+func _half_x(k: int) -> float:
+	var hx := LOOP_HALF[k].x
+	return hx if k == 0 else hx * loop_width
 
 
 ## 线圈第 seg 段属于哪一部分。
