@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="LevelCatalog" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/data/level_catalog.gd" id="1_cat"]
+[ext_resource type="Script" path="res://scripts/core/data/level_definition.gd" id="2_def"]
+[ext_resource type="Resource" path="res://resources/levels/level_01_first_stitch.tres" id="l01"]
+[ext_resource type="Resource" path="res://resources/levels/level_02_a_row.tres" id="l02"]
+[ext_resource type="Resource" path="res://resources/levels/level_03_snip.tres" id="l03"]
+[ext_resource type="Resource" path="res://resources/levels/level_04_first_purl.tres" id="l04"]
+[ext_resource type="Resource" path="res://resources/levels/level_05_purl_row.tres" id="l05"]
+[ext_resource type="Resource" path="res://resources/levels/level_06_turn.tres" id="l06"]
+[ext_resource type="Resource" path="res://resources/levels/level_07_rib_row.tres" id="l07"]
+[ext_resource type="Resource" path="res://resources/levels/level_08_rib.tres" id="l08"]
+[ext_resource type="Resource" path="res://resources/levels/level_09_seed.tres" id="l09"]
+[ext_resource type="Resource" path="res://resources/levels/level_10_ridges.tres" id="l10"]
+[ext_resource type="Resource" path="res://resources/levels/level_11_basket.tres" id="l11"]
+
+[resource]
+script = ExtResource("1_cat")
+levels = Array[ExtResource("2_def")]([ExtResource("l01"), ExtResource("l02"), ExtResource("l03"), ExtResource("l04"), ExtResource("l05"), ExtResource("l06"), ExtResource("l07"), ExtResource("l08"), ExtResource("l09"), ExtResource("l10"), ExtResource("l11")])

@@ -1,38 +1,100 @@
 # 织间 · The Art of Weaving
 
-Godot 4.7 / GDScript 的 2D 编织原型。打开 project.godot，按 F5 运行。
+A small, calm knitting game. You pull a strand of yarn across the screen and hook it through the loops of the row below, one stitch at a time. Whether a stitch becomes a **knit** or a **purl** depends on which side of the fabric your yarn is on, so the only extra move you need is to **wrap** the yarn to the other side. Inspired by the tactile, no-fail feel of *A Little to the Left*.
 
-F5 首先进入章节与关卡选择。当前第一章包含平纹、斜纹两关，均可直接进入；游玩时左上角返回选关。通关后可按目录顺序进入下一关，支持跨章节。完成勾号只记录本次运行，返回选关后重新进入会重置该关的未完成织纹。
+AP6412 group assignment · **Route B** (one game, 2D and 3D versions).
 
-**新增关卡无需修改导航代码**：编辑 `resources/catalog/chapter_01.tres` 的 Stages 数组，添加一个 WeaveStage，填写唯一 ID、标题和 Lesson。新增章节则编辑 `resources/catalog/main_catalog.tres` 的 Chapters 数组。完整步骤见 [新增章节与关卡](docs/adding_levels.md)。
+| | |
+|---|---|
+| Engine | Godot **4.7** (GL Compatibility renderer) |
+| Language | GDScript (statically typed) |
+| Dependencies | None at runtime. `addons/godot_ai` is an editor-only development plugin and is not used by game code. |
+| Repository | https://github.com/JOKILLER-git/TheArtOfWeaving |
 
-## 玩法
+## How to run
 
-1. 对照上方目标织纹，从第一行开始。每行从左到右对应经线 1–10；↑ 表示经线在纬线上方，↓ 表示在下方。
-2. 点击织框上方的编号按钮抬起或放下经线。确认前可以反复调整；弯曲、偏移、分离的阴影和箭头共同表示提经。
-3. 点击“确认提经 · 引纬”，自动播放梭子穿过梭口与打纬。本梭动画期间不能调整组合或重复确认。
-4. 共织四行，全部与目标一致才可进入下一关。第一节是平纹，第二节是斜纹。
-5. 已织交叉点不能点击修改。“撤销一行”退回上一梭并恢复原组合，可连续撤销；“重新开始”清空本关。
+1. Install Godot 4.7.
+2. Open Godot → **Import** → select `project.godot` in this folder.
+3. Press **F5**. The game starts at the title screen (`scenes/app/game_app.tscn`).
 
-没有计时或失败惩罚。错误行在目标旁标记 ×；织满但不正确时仍可撤销、重试。当前组合会沿用到下一梭，需要玩家自行调整。
+## How to play
 
-## 实现入口
+The game uses almost no text: every action is done with an object on screen.
 
-- `scripts/first_weave.gd`：状态协调和过关门控。
-- `scenes/game_browser.tscn`、`scripts/game_browser.gd`：应用入口与导航。
-- `scenes/ui/level_selection.tscn`：章节和关卡列表；按钮模板也放在此目录。
-- `resources/catalog/`：章节、关卡顺序和场景引用。
-- `scripts/gameplay/weave_surface.gd`：提经输入、引纬打纬动画、逐行交错绘制。
-- `scripts/data/weave_lesson.gd`、`resources/lessons/`：目标织纹（next_lesson 仅为独立 F6 运行兼容字段）。
-- `scripts/ui/weave_hud.gd`、`scenes/ui/weave_hud.tscn`：目标及操作界面。
+| Action | How |
+|---|---|
+| Start | On the title screen, drag the yarn end on the left to the glowing spool on the right (or press **Enter**) |
+| Pick up the yarn | Press and hold the left mouse button on the yarn tip |
+| Make a stitch | Drag the tip **upward through the glowing eye** of the next loop |
+| Move the yarn to the other side of the fabric | Drag the tip **around** the point where the yarn leaves the fabric (about three quarters of a turn) |
+| Restart the level | Drag the **scissors** (bottom left) onto the yarn or fabric (shortcut **R**) |
+| Hint | Appears automatically when idle, or press **H** |
+| Choose a level | Pull down the little yarn loop hanging from the progress beads at the top: the beads unfold into a clothesline of level cards (finished swatch + best stars, or a pencil sketch). Click a card to play it; push the loop back up, click empty space or press **Esc** to close |
+| Quit | On the title screen, drag the **scissors** onto the yarn |
+| Back to title | **Esc** |
+| Fullscreen / window | **F11** (the game starts fullscreen) |
+| Gesture debug overlay | **F3** (hit zones, wrap guard, last ignored/rejected hook) |
 
-详见 [开发入口](DEVELOPING.md) 和 [制作管线](docs/production_pipeline.md)。原有独立拖线场景和脚本保留，主玩法不再使用拖线作为过关条件。
+Rules:
+- Yarn **behind** the fabric (dark, thin) → hooking makes a **knit** stitch (V).
+- Yarn **in front** (bright, thick) → hooking makes a **purl** stitch (horizontal bump).
+- The chart card (top right) shows the target: `V` = knit, `—` = purl. Rows alternate direction, like real flat knitting.
+- When a level is finished, 1–3 stars are knitted on screen (0 mistakes = 3 stars, up to 2 mistakes = 2 stars, otherwise 1), then the next level starts automatically. The beads at the top show progress.
+- There is no failure state. Invalid actions are rejected gently:
+  - wrong yarn side → the loop forms, slips off, a pencil hint appears, and it counts as a mistake;
+  - hooking the wrong loop → the correct next eye flashes;
+  - a level that starts with a mistake (level 3) → hooking is blocked, the wrong loop is circled and the scissors wiggle until you cut;
+  - acting after a level is complete → ignored.
 
-## 验证
+Levels (11): First Stitch → A Row → Snip (fix a mistake with the scissors) → First Purl → Purl Row → Turn (two rows) → Rib Row → Rib → Seed → Ridges → Basket. The end screen shows every finished swatch; pull the yarn again to replay.
 
-```powershell
-& '<Godot executable>' --headless --path . --script res://tests/first_weave_smoke.gd
-& '<Godot executable>' --headless --path . --script res://tests/level_selection_smoke.gd
+## Project structure
+
+```
+scripts/core/              Game rules and data. RefCounted/Resource only; no Node, input or drawing.
+  stitch_type.gd           abstract StitchType; knit_stitch.gd, purl_stitch.gd
+  stitch_registry.gd       stitch lookup; which stitch a yarn side produces
+  yarn.gd, fabric.gd       working-yarn side; grid of finished stitches
+  knit_session.gd          rule state machine for one level; hook_result.gd
+  fabric_layout.gd         geometry in "fabric coordinates" (columns/rows)
+  data/                    PatternChart, LevelDefinition, LevelCatalog (Resources)
+  gesture/                 GestureRecognizer (abstract), HookGesture, WrapGesture
+scripts/presentation_2d/   2D rendering, mouse input, sound, chart card
+scripts/app/               GameApp flow: title → levels → end screen; LevelSequence
+resources/levels/          the four levels and the catalog (.tres)
+scenes/app/                game_app.tscn (main scene), title/end screens
+scenes/knit/               knit_level_2d.tscn (one level; runnable alone with F6)
+tests/core/, tests/app/    rule and flow tests
 ```
 
-去掉 `--headless` 并追加 `-- --capture` 可在 `.local/` 保存截图。当前无跨会话存档、自由绳索物理或音效；标准布局支持 1–4 行目标。中文使用系统字体。
+Dependencies only point downward: `app` → `presentation_2d` → `core`. Gestures are recognised in fabric coordinates, so a 3D version only needs to project the mouse ray onto the fabric plane; the rules and recognisers are reused unchanged.
+
+## Tests
+
+Run from a running game (e.g. Godot's debugger / remote expression) or headless:
+
+```
+godot --headless --path . --script res://tests/core/run_core_tests.gd
+godot --headless --path . --script res://tests/app/run_app_tests.gd
+```
+
+Last recorded result: core 174/174, app 131/131 passed.
+
+Best stars per level are kept for the current run only, so every launch starts with all levels unlocked and none completed (demo-friendly). `ProgressStore` can persist them to `user://progress.json` by constructing it with its default path in `GameApp`.
+
+## Versions (Git tags)
+
+| Tag | Content |
+|---|---|
+| `v0-weaving-prototype` | Early loom-weaving gameplay (abandoned direction, kept as history) |
+| `v0.1-knit-prototype` | Single-script knitting gesture prototype |
+| `2d-baseline` | Frozen 2D version (core / presentation_2d / app layers) |
+| `3d-final` | 3D version reusing the same core |
+
+## Team and AI logs
+
+| Member | Personal branch | AI log location |
+|---|---|---|
+| JOKILLER | `member/jokiller` | `ai-logs/jokiller/` |
+
+AI (Claude) was used as a design partner and as implementation agents. Each implementation task is specified as a task card with acceptance criteria; agent reports were reviewed against screenshots and tests before merging. Full logs are in the folder above.
