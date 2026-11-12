@@ -1,0 +1,104 @@
+digraph G {
+graph [rankdir=TB, fontname="DejaVu Sans", fontsize=12, nodesep=0.25, ranksep=0.45, compound=true, newrank=true, bgcolor="white", pad=0.3];
+node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=11, margin="0.12,0.06", penwidth=0.8];
+edge [fontname="DejaVu Sans", fontsize=9, color="#555555", arrowsize=0.7];
+
+subgraph cluster_app { label=<<B>app — game flow &amp; object-based UI</B>>; style="rounded,filled"; fillcolor="#eeeeee"; color="#888888"; fontsize=13; node [fillcolor="white", color="#888888"];
+GameApp [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>Control</I></FONT><BR/><B>GameApp</B><BR/><FONT POINT-SIZE="10">app state machine: title → levels → end</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">play_level(i)</FONT>>];
+LevelSequence [label=<<B>LevelSequence</B><BR/><FONT POINT-SIZE="10">current level, advance, select</FONT>>];
+ProgressStore [label=<<B>ProgressStore</B><BR/><FONT POINT-SIZE="10">load/save PlayerProgress</FONT>>];
+AppUI [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>group</I></FONT><BR/><B>AppUI</B><BR/><FONT POINT-SIZE="10">TitleScreen · EndScreen · YarnPull2D · YarnLoopLogo2D<BR/>ProgressBeads2D · LevelClothesline2D · LevelCard2D<BR/>LevelThumb2D · SwatchWall2D</FONT>>];
+}
+
+subgraph cluster_p2 { label=<<B>presentation_2d</B>>; style="rounded,filled"; fillcolor="#e4eef8"; color="#3b78b0"; fontsize=13; node [fillcolor="white", color="#3b78b0"];
+KnitLevel2D [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>Control</I></FONT><BR/><B>KnitLevel2D</B><BR/><FONT POINT-SIZE="10">2D composition root of a level</FONT>>];
+ScreenMapper2D [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>RefCounted</I></FONT><BR/><B>ScreenMapper2D</B><BR/><FONT POINT-SIZE="10">pixels ↔ fabric coords</FONT>>];
+PointerInput2D [label=<<B>PointerInput2D</B><BR/><FONT POINT-SIZE="10">mouse → fabric point → recognisers</FONT>>];
+FabricView2D [label=<<B>FabricView2D</B><BR/><FONT POINT-SIZE="10">loops + over/under crossings<BR/>(Strand2D, StrandPainter2D)</FONT>>];
+WorkingYarn2D [label=<<B>WorkingYarn2D</B><BR/><FONT POINT-SIZE="10">Verlet working yarn</FONT>>];
+Overlays [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>group</I></FONT><BR/><B>Overlays</B><BR/><FONT POINT-SIZE="10">HintView2D · ChartCard2D · StarRatingView2D<BR/>Scissors2D · UnravelEffect2D · GestureDebugOverlay2D · SoundBank</FONT>>];
+}
+
+subgraph cluster_core { label=<<B>core — rules, data, gestures (unchanged 2D → 3D)</B>>; style="rounded,filled"; fillcolor="#e6f4ea"; color="#3c8c55"; fontsize=13; node [fillcolor="white", color="#3c8c55"];
+StitchType [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>abstract</I></FONT><BR/><B>StitchType</B><BR/><FONT POINT-SIZE="10">stitch: id, symbol,<BR/>required yarn side, crossing order</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">required_side()  new_loop_in_front()</FONT>>];
+KnitStitch [label=<<B>KnitStitch</B><BR/><FONT POINT-SIZE="10">yarn behind → V</FONT>>];
+PurlStitch [label=<<B>PurlStitch</B><BR/><FONT POINT-SIZE="10">yarn in front → bump</FONT>>];
+StitchRegistry [label=<<B>StitchRegistry</B><BR/><FONT POINT-SIZE="10">lookup; side → stitch</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">by_id()  for_side()</FONT>>];
+Yarn [label=<<B>Yarn</B><BR/><FONT POINT-SIZE="10">working yarn side</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">side  toggle()</FONT>>];
+Fabric [label=<<B>Fabric</B><BR/><FONT POINT-SIZE="10">grid of finished stitches</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">place()  stitch_at()</FONT>>];
+KnitSession [label=<<B>KnitSession</B><BR/><FONT POINT-SIZE="10">rule state machine of one level;<BR/>handles invalid actions</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">try_hook()  toggle_yarn()  cut()<BR/>signals: stitch_made, level_completed…</FONT>>];
+HookResult [label=<<B>HookResult</B><BR/><FONT POINT-SIZE="10">ACCEPTED / WRONG_SIDE /<BR/>NOT_NEXT / LEVEL_DONE / BLOCKED</FONT>>];
+FabricLayout [label=<<B>FabricLayout</B><BR/><FONT POINT-SIZE="10">geometry in fabric coords</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">eye()  anchor()  loop_keys()</FONT>>];
+GestureRecognizer [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>abstract</I></FONT><BR/><B>GestureRecognizer</B><BR/><FONT POINT-SIZE="10">pointer path in fabric coords</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">feed(point)  reset()</FONT>>];
+HookGesture [label=<<B>HookGesture</B><BR/><FONT POINT-SIZE="10">upward through eye → hook</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">hook_requested(col)</FONT>>];
+WrapGesture [label=<<B>WrapGesture</B><BR/><FONT POINT-SIZE="10">winding around anchor → wrap</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">wrap_completed  blocks_hook()</FONT>>];
+LevelDefinition [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>Resource</I></FONT><BR/><B>LevelDefinition</B><BR/><FONT POINT-SIZE="10">one level: chart, star limits,<BR/>optional preset rows</FONT>>];
+PatternChart [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>Resource</I></FONT><BR/><B>PatternChart</B><BR/><FONT POINT-SIZE="10">target stitches per row</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">stitch_at(row, col)</FONT>>];
+LevelCatalog [label=<<FONT POINT-SIZE="9" COLOR="#6b6458"><I>Resource</I></FONT><BR/><B>LevelCatalog</B><BR/><FONT POINT-SIZE="10">level order</FONT>>];
+LevelScore [label=<<B>LevelScore</B><BR/><FONT POINT-SIZE="10">counts mistakes (WRONG_SIDE)</FONT>>];
+StarRating [label=<<B>StarRating</B><BR/><FONT POINT-SIZE="10">mistakes → 1–3 stars</FONT>>];
+PlayerProgress [label=<<B>PlayerProgress</B><BR/><FONT POINT-SIZE="10">best stars per level</FONT><BR/><FONT POINT-SIZE="9" FACE="DejaVu Sans Mono" COLOR="#444444">record()  best()</FONT>>];
+{rank=same; KnitStitch; PurlStitch;}
+}
+
+
+KnitStitch -> StitchType [arrowhead=empty, style=solid, color="#333333", label=" is-a"];
+PurlStitch -> StitchType [arrowhead=empty, style=solid, color="#333333", label=" is-a"];
+HookGesture -> GestureRecognizer [arrowhead=empty, style=solid, color="#333333", label=" is-a"];
+WrapGesture -> GestureRecognizer [arrowhead=empty, style=solid, color="#333333", label=" is-a"];
+KnitSession -> Fabric [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+KnitSession -> Yarn [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+KnitSession -> StitchRegistry [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+KnitSession -> PatternChart [style=dashed, arrowhead=vee, label=" uses"];
+KnitSession -> HookResult [style=dashed, arrowhead=vee, label=" returns"];
+StitchRegistry -> StitchType [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+LevelCatalog -> LevelDefinition [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+LevelDefinition -> PatternChart [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+HookGesture -> WrapGesture [style=dashed, arrowhead=vee, label=" guard"];
+HookGesture -> FabricLayout [style=dashed, arrowhead=vee, label=" uses"];
+WrapGesture -> FabricLayout [style=dashed, arrowhead=vee, label=" uses"];
+FabricLayout -> KnitSession [style=dashed, arrowhead=vee, label=" uses"];
+LevelScore -> KnitSession [style=dashed, arrowhead=vee, label=" listens"];
+LevelScore -> StarRating [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+
+
+GameApp -> LevelSequence [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+GameApp -> ProgressStore [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+GameApp -> AppUI [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+ProgressStore -> PlayerProgress [style=dashed, arrowhead=vee, label=" uses"];
+LevelSequence -> LevelCatalog [style=dashed, arrowhead=vee, label=" uses"];
+KnitLevel2D -> ScreenMapper2D [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+KnitLevel2D -> PointerInput2D [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+KnitLevel2D -> FabricView2D [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+KnitLevel2D -> WorkingYarn2D [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+KnitLevel2D -> Overlays [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+KnitLevel2D -> KnitSession [arrowhead=diamond, label=" has-a session,\n score, gestures"];
+KnitLevel2D -> GestureRecognizer [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+PointerInput2D -> GestureRecognizer [style=dashed, arrowhead=vee, label=" uses"];
+FabricView2D -> StitchType [style=dashed, arrowhead=vee, label=" crossing order"];
+
+GameApp -> KnitLevel2D [arrowhead=diamond, arrowtail=none, dir=forward, label=" has-a"];
+PointerInput2D -> ScreenMapper2D [style=dashed, arrowhead=vee, label=" uses"];
+Overlays -> ScreenMapper2D [style=dashed, arrowhead=vee, label=" uses"];
+
+legend [shape=plaintext, style="", label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2">
+<TR><TD ALIGN="LEFT"><B>Legend</B></TD></TR>
+<TR><TD ALIGN="LEFT">hollow arrow = is-a (inheritance)</TD></TR>
+<TR><TD ALIGN="LEFT">diamond = has-a (owns / holds)</TD></TR>
+<TR><TD ALIGN="LEFT">dashed arrow = uses / listens</TD></TR>
+<TR><TD ALIGN="LEFT">green = core rules · blue = 2D · purple = 3D · amber = shared abstractions · grey = app</TD></TR>
+</TABLE>>];
+{rank=same; GameApp; LevelSequence; ProgressStore; AppUI;}
+{rank=same; KnitLevel2D;}
+{rank=same; ScreenMapper2D; PointerInput2D; FabricView2D; WorkingYarn2D; Overlays;}
+{rank=same; KnitSession; GestureRecognizer; LevelScore; PlayerProgress; LevelCatalog;}
+{rank=same; Fabric; Yarn; StitchRegistry; HookResult; HookGesture; WrapGesture; StarRating; LevelDefinition;}
+{rank=same; StitchType; FabricLayout; PatternChart;}
+{rank=same; KnitStitch; PurlStitch; legend;}
+GameApp -> KnitLevel2D [style=invis, weight=10];
+KnitLevel2D -> ScreenMapper2D [style=invis, weight=10];
+ScreenMapper2D -> KnitSession [style=invis, weight=10];
+KnitSession -> Fabric [style=invis, weight=10];
+Fabric -> StitchType [style=invis, weight=10];
+StitchType -> KnitStitch [style=invis, weight=10];
+}

@@ -1,7 +1,0 @@
-[gd_scene format=3]
-[node name="ChapterButton" type="Button"]
-custom_minimum_size = Vector2(250, 64)
-size_flags_horizontal = 3
-mouse_default_cursor_shape = 2
-clip_text = true
-text = "章节"
