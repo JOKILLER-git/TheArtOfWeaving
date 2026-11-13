@@ -101,17 +101,32 @@ Best stars per level are kept for the current run only, so every launch starts w
 
 ## Versions (Git tags)
 
-| Tag | Content |
+| Tag | Content | Link |
+|---|---|---|
+| `v0-weaving-prototype` | Early loom-weaving gameplay (abandoned direction, kept as history) | https://github.com/JOKILLER-git/TheArtOfWeaving/tree/v0-weaving-prototype |
+| `v0.1-knit-prototype` | Single-script knitting gesture prototype | https://github.com/JOKILLER-git/TheArtOfWeaving/tree/v0.1-knit-prototype |
+| `2d-baseline` | **Runnable 2D version** (frozen; main scene `scenes/app/game_app.tscn`) | https://github.com/JOKILLER-git/TheArtOfWeaving/tree/2d-baseline |
+| `3d-final` | **Runnable 3D version** reusing the same core (main scene `scenes/app/game_app_3d.tscn`; the 2D version is also included and selectable with the title-screen View button) | https://github.com/JOKILLER-git/TheArtOfWeaving/tree/3d-final |
+
+All tags: https://github.com/JOKILLER-git/TheArtOfWeaving/tags
+
+## GitHub evidence
+
+| What | Link |
 |---|---|
-| `v0-weaving-prototype` | Early loom-weaving gameplay (abandoned direction, kept as history) |
-| `v0.1-knit-prototype` | Single-script knitting gesture prototype |
-| `2d-baseline` | Frozen 2D version (core / presentation_2d / app layers) |
-| `3d-final` | 3D version reusing the same core |
+| 2D → 3D comparison | https://github.com/JOKILLER-git/TheArtOfWeaving/compare/2d-baseline...3d-final |
+| Core rules unchanged in that comparison | `git diff 2d-baseline 3d-final -- scripts/core` (empty) |
+| Pull request / merge history | https://github.com/JOKILLER-git/TheArtOfWeaving/pulls?q=is%3Apr |
+| Commit history | https://github.com/JOKILLER-git/TheArtOfWeaving/commits/main |
+| Personal branch (JOKILLER) | https://github.com/JOKILLER-git/TheArtOfWeaving/tree/member/jokiller |
+| Personal branch ([Member 2]) | https://github.com/JOKILLER-git/TheArtOfWeaving/tree/member/[name] |
+| Class maps | `docs/classmap/` (2D baseline and 3D final) |
 
 ## Team and AI logs
 
 | Member | Personal branch | AI log location |
 |---|---|---|
-| JOKILLER | `member/jokiller` | `ai-logs/jokiller/` |
+| JOKILLER | `member/jokiller` | `ai-logs/jokiller/` (index: `ai-logs/jokiller/INDEX.md`) |
+| [Member 2] | `member/[name]` | `ai-logs/[name]/` (or a declaration that AI was not used) |
 
-AI (Claude) was used as a design partner and as implementation agents. Each implementation task is specified as a task card with acceptance criteria; agent reports were reviewed against screenshots and tests before merging. Full logs are in the folder above.
+AI (Claude) was used as a design partner and as implementation agents. Each implementation task was specified as a task card with acceptance criteria; agent reports were reviewed against screenshots and tests before merging. Full chronological logs are in the folders above.
